@@ -39,6 +39,18 @@ void BOARD_InitBootPins(void);
 #define BOARD_RED_LED_PIN 22U    /*!<@brief PORTB pin index: 22 */
                                  /* @} */
 
+/*! @name PORTC14 (number 86), J199[3]/BT_TX
+  @{ */
+#define BOARD_BT_RX_PORT PORTC /*!<@brief PORT device name: PORTC */
+#define BOARD_BT_RX_PIN 14U    /*!<@brief PORTC pin index: 14 */
+                               /* @} */
+
+/*! @name PORTC15 (number 87), J199[4]/BT_RX
+  @{ */
+#define BOARD_BT_TX_PORT PORTC /*!<@brief PORT device name: PORTC */
+#define BOARD_BT_TX_PIN 15U    /*!<@brief PORTC pin index: 15 */
+                               /* @} */
+
 /*!
  * @brief Configures pin routing and optionally pin electrical features.
  *
