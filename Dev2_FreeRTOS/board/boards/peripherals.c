@@ -49,7 +49,7 @@ component:
 instance:
 - name: 'BLUETOOTH'
 - type: 'uart'
-- mode: 'interrupts'
+- mode: 'polling'
 - type_id: 'uart_cd31a12aa8c79051fda42cc851a27c37'
 - functional_group: 'BOARD_InitPeripherals'
 - peripheral: 'UART4'
@@ -66,22 +66,6 @@ instance:
       - idleType: 'kUART_IdleTypeStartBit'
       - enableTx: 'true'
       - enableRx: 'true'
-  - interruptsCfg:
-    - interrupts: 'kUART_TxDataRegEmptyInterruptEnable kUART_TransmissionCompleteInterruptEnable kUART_RxDataRegFullInterruptEnable kUART_RxOverrunInterruptEnable'
-    - interrupt_vectors:
-      - enable_rx_tx_irq: 'true'
-      - interrupt_rx_tx:
-        - IRQn: 'UART4_RX_TX_IRQn'
-        - enable_priority: 'false'
-        - priority: '0'
-        - enable_custom_name: 'true'
-        - handler_custom_name: 'BLUETOOTH_IRQHandler'
-      - enable_err_irq: 'false'
-      - interrupt_err:
-        - IRQn: 'UART4_ERR_IRQn'
-        - enable_priority: 'false'
-        - priority: '0'
-        - enable_custom_name: 'false'
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
 /* clang-format on */
 const uart_config_t BLUETOOTH_config = {
@@ -97,9 +81,6 @@ const uart_config_t BLUETOOTH_config = {
 
 void BLUETOOTH_init(void) {
   UART_Init(BLUETOOTH_PERIPHERAL, &BLUETOOTH_config, BLUETOOTH_CLOCK_SOURCE);
-  UART_EnableInterrupts(BLUETOOTH_PERIPHERAL, kUART_TxDataRegEmptyInterruptEnable | kUART_TransmissionCompleteInterruptEnable | kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
-  /* Enable interrupt UART4_RX_TX_IRQn request in the NVIC */
-  EnableIRQ(BLUETOOTH_SERIAL_RX_TX_IRQN);
 }
 
 /***********************************************************************************************************************

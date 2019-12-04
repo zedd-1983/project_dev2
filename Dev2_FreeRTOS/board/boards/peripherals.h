@@ -25,14 +25,6 @@ extern "C" {
 #define BLUETOOTH_PERIPHERAL UART4
 /* Definition of the clock source frequency */
 #define BLUETOOTH_CLOCK_SOURCE CLOCK_GetFreq(UART4_CLK_SRC)
-/* BLUETOOTH interrupt vector ID (number). */
-#define BLUETOOTH_SERIAL_RX_TX_IRQN UART4_RX_TX_IRQn
-/* BLUETOOTH interrupt handler identifier. */
-#define BLUETOOTH_IRQHandler UART4_RX_TX_IRQHandler
-/* BLUETOOTH interrupt vector ID (number). */
-#define BLUETOOTH_SERIAL_ERROR_IRQN UART4_ERR_IRQn
-/* BLUETOOTH interrupt handler identifier. */
-#define BLUETOOTH_SERIAL_ERROR_IRQHANDLER UART4_ERR_IRQHandler
 
 /***********************************************************************************************************************
  * Global variables

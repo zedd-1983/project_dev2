@@ -22,24 +22,24 @@ void mainTask(void*);
 TaskHandle_t mainTaskHandle = NULL;
 QueueHandle_t btQueue = NULL;
 
-void BLUETOOTH_IRQHandler()
-{
-	char charReceived;
-
-	if(kUART_RxDataRegFullFlag & UART_GetStatusFlags(BLUETOOTH_PERIPHERAL))
-	{
-		BaseType_t xHigherPriorityTaskWoken;
-		charReceived = UART_ReadByte(BLUETOOTH_PERIPHERAL);
-
-		xHigherPriorityTaskWoken = pdFALSE;
-		xQueueSendFromISR(btQueue, &charReceived, &xHigherPriorityTaskWoken);
-
-		GPIO_PortToggle(BOARD_GREEN_LED_GPIO, 1 << BOARD_GREEN_LED_PIN);
-		UART_WriteByte(BLUETOOTH_PERIPHERAL, charReceived);
-
-		portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-	}
-}
+//void BLUETOOTH_IRQHandler()
+//{
+//	char charReceived;
+//
+//	if(kUART_RxDataRegFullFlag & UART_GetStatusFlags(BLUETOOTH_PERIPHERAL))
+//	{
+//		BaseType_t xHigherPriorityTaskWoken;
+//		charReceived = UART_ReadByte(BLUETOOTH_PERIPHERAL);
+//
+//		xHigherPriorityTaskWoken = pdFALSE;
+//		xQueueSendFromISR(btQueue, &charReceived, &xHigherPriorityTaskWoken);
+//
+//		GPIO_PortToggle(BOARD_GREEN_LED_GPIO, 1 << BOARD_GREEN_LED_PIN);
+//		UART_WriteByte(BLUETOOTH_PERIPHERAL, charReceived);
+//
+//		portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+//	}
+//}
 
 int main(void) {
 
@@ -50,10 +50,11 @@ int main(void) {
   	/* Init FSL debug console. */
     BOARD_InitDebugConsole();
 
-    UART_EnableInterrupts(BLUETOOTH_PERIPHERAL, kUART_RxDataRegFullInterruptEnable);
-    NVIC_SetPriority(UART4_RX_TX_IRQn, 10);
-    NVIC_ClearPendingIRQ(UART4_RX_TX_IRQn);
-    NVIC_EnableIRQ(UART4_RX_TX_IRQn);
+
+//    UART_EnableInterrupts(BLUETOOTH_PERIPHERAL, kUART_RxDataRegFullInterruptEnable);
+//    NVIC_SetPriority(UART4_RX_TX_IRQn, 10);
+//    NVIC_ClearPendingIRQ(UART4_RX_TX_IRQn);
+//    NVIC_EnableIRQ(UART4_RX_TX_IRQn);
 
 #ifdef DEBUG_MSG
     PRINTF("\033[32mApplication Start\033[0m\n\r");
@@ -79,15 +80,17 @@ void mainTask(void* pvParameters)
 	PRINTF("\n\rMain Task\n\r");
 #endif
 
-	char charReceived = 'a';
 
 	for(;;)
 	{
-		GPIO_PortToggle(BOARD_RED_LED_GPIO, 1 << BOARD_RED_LED_PIN);
-
-		if(xQueueReceive(btQueue, &charReceived, 0) == pdTRUE)
-			PRINTF("\n\r%c", charReceived);
-
+		if(kUART_RxDataRegFullFlag & UART_GetStatusFlags(UART4)) {
+			uint8_t charReceived = UART_ReadByte(UART4);
+			if(charReceived == '\001') {
+				GPIO_PortToggle(BOARD_RED_LED_GPIO, 1 << BOARD_RED_LED_PIN);
+				PRINTF("\n\rAlarm");
+			}
+			charReceived = '0';
+		}
 		vTaskDelay(pdMS_TO_TICKS(1000));
 	}
 }

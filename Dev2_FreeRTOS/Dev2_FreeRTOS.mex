@@ -931,7 +931,7 @@
                   </dependency>
                </dependencies>
                <instances>
-                  <instance name="BLUETOOTH" type="uart" type_id="uart_cd31a12aa8c79051fda42cc851a27c37" mode="interrupts" peripheral="UART4" enabled="true">
+                  <instance name="BLUETOOTH" type="uart" type_id="uart_cd31a12aa8c79051fda42cc851a27c37" mode="polling" peripheral="UART4" enabled="true">
                      <config_set name="uartConfig_t">
                         <struct name="uartConfig">
                            <setting name="clockSource" value="BusInterfaceClock"/>
@@ -944,33 +944,6 @@
                            <setting name="idleType" value="kUART_IdleTypeStartBit"/>
                            <setting name="enableTx" value="true"/>
                            <setting name="enableRx" value="true"/>
-                        </struct>
-                     </config_set>
-                     <config_set name="interruptsCfg">
-                        <set name="interrupts">
-                           <selected>
-                              <id>kUART_TxDataRegEmptyInterruptEnable</id>
-                              <id>kUART_TransmissionCompleteInterruptEnable</id>
-                              <id>kUART_RxDataRegFullInterruptEnable</id>
-                              <id>kUART_RxOverrunInterruptEnable</id>
-                           </selected>
-                        </set>
-                        <struct name="interrupt_vectors">
-                           <setting name="enable_rx_tx_irq" value="true"/>
-                           <struct name="interrupt_rx_tx">
-                              <setting name="IRQn" value="UART4_RX_TX_IRQn"/>
-                              <setting name="enable_priority" value="false"/>
-                              <setting name="priority" value="0"/>
-                              <setting name="enable_custom_name" value="true"/>
-                              <setting name="handler_custom_name" value="BLUETOOTH_IRQHandler"/>
-                           </struct>
-                           <setting name="enable_err_irq" value="false"/>
-                           <struct name="interrupt_err">
-                              <setting name="IRQn" value="UART4_ERR_IRQn"/>
-                              <setting name="enable_priority" value="false"/>
-                              <setting name="priority" value="0"/>
-                              <setting name="enable_custom_name" value="false"/>
-                           </struct>
                         </struct>
                      </config_set>
                   </instance>
