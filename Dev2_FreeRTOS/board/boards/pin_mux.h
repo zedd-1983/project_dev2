@@ -39,6 +39,13 @@ void BOARD_InitBootPins(void);
 #define BOARD_RED_LED_PIN 22U    /*!<@brief PORTB pin index: 22 */
                                  /* @} */
 
+/*! @name PORTB21 (number 67), D12[3]/LEDRGB_BLUE
+  @{ */
+#define BOARD_BLUE_LED_GPIO GPIOB /*!<@brief GPIO device name: GPIOB */
+#define BOARD_BLUE_LED_PORT PORTB /*!<@brief PORT device name: PORTB */
+#define BOARD_BLUE_LED_PIN 21U    /*!<@brief PORTB pin index: 21 */
+                                  /* @} */
+
 /*! @name PORTC14 (number 86), J199[3]/BT_TX
   @{ */
 #define BOARD_BT_RX_PORT PORTC /*!<@brief PORT device name: PORTC */
@@ -50,6 +57,20 @@ void BOARD_InitBootPins(void);
 #define BOARD_BT_TX_PORT PORTC /*!<@brief PORT device name: PORTC */
 #define BOARD_BT_TX_PIN 15U    /*!<@brief PORTC pin index: 15 */
                                /* @} */
+
+/*! @name PORTC16 (number 90), J1[2]
+  @{ */
+#define BOARD_BT_STATE_GPIO GPIOC /*!<@brief GPIO device name: GPIOC */
+#define BOARD_BT_STATE_PORT PORTC /*!<@brief PORT device name: PORTC */
+#define BOARD_BT_STATE_PIN 16U    /*!<@brief PORTC pin index: 16 */
+                                  /* @} */
+
+/*! @name PORTA4 (number 38), SW3
+  @{ */
+#define BOARD_ACKNOWLEDGE_GPIO GPIOA /*!<@brief GPIO device name: GPIOA */
+#define BOARD_ACKNOWLEDGE_PORT PORTA /*!<@brief PORT device name: PORTA */
+#define BOARD_ACKNOWLEDGE_PIN 4U     /*!<@brief PORTA pin index: 4 */
+                                     /* @} */
 
 /*!
  * @brief Configures pin routing and optionally pin electrical features.

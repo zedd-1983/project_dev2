@@ -24,7 +24,7 @@
          <pins_profile>
             <processor_version>6.0.1</processor_version>
             <pin_labels>
-               <pin_label pin_num="90" pin_signal="PTC16/UART3_RX/ENET0_1588_TMR0/FB_CS5_b/FB_TSIZ1/FB_BE23_16_BLS15_8_b" label="J1[2]" identifier="TMR_1588_0"/>
+               <pin_label pin_num="90" pin_signal="PTC16/UART3_RX/ENET0_1588_TMR0/FB_CS5_b/FB_TSIZ1/FB_BE23_16_BLS15_8_b" label="J1[2]" identifier="TMR_1588_0;BT_STATE"/>
                <pin_label pin_num="91" pin_signal="PTC17/UART3_TX/ENET0_1588_TMR1/FB_CS4_b/FB_TSIZ0/FB_BE31_24_BLS7_0_b" label="J1[4]" identifier="TMR_1588_1"/>
                <pin_label pin_num="57" pin_signal="PTB9/SPI1_PCS1/UART3_CTS_b/FB_AD20" label="J1[6]"/>
                <pin_label pin_num="35" pin_signal="PTA1/UART0_RX/FTM0_CH6/JTAG_TDI/EZP_DI" label="J1[8]"/>
@@ -66,7 +66,7 @@
                <pin_label pin_num="59" pin_signal="ADC1_SE15/PTB11/SPI1_SCK/UART3_TX/FB_AD18/FTM0_FLT2" label="J4[8]"/>
                <pin_label pin_num="83" pin_signal="ADC1_SE7b/PTC11/LLWU_P11/I2C1_SDA/FTM3_CH7/I2S0_RXD1/FB_RW_b" label="J4[10]"/>
                <pin_label pin_num="82" pin_signal="ADC1_SE6b/PTC10/I2C1_SCL/FTM3_CH6/I2S0_RX_FS/FB_AD5" label="J4[12]"/>
-               <pin_label pin_num="38" pin_signal="PTA4/LLWU_P3/FTM0_CH1/NMI_b/EZP_CS_b" label="SW3" identifier="SW3"/>
+               <pin_label pin_num="38" pin_signal="PTA4/LLWU_P3/FTM0_CH1/NMI_b/EZP_CS_b" label="SW3" identifier="SW3;ACKNOWLEDGE"/>
                <pin_label pin_num="78" pin_signal="CMP0_IN0/PTC6/LLWU_P10/SPI0_SOUT/PDB0_EXTRG/I2S0_RX_BCLK/FB_AD9/I2S0_MCLK" label="U8[11]/SW2" identifier="SW2;ACCEL_INT1"/>
                <pin_label pin_num="52" pin_signal="RESET_b" label="J3[6]/J9[10]/D1/RESET" identifier="RESET"/>
                <pin_label pin_num="6" pin_signal="PTE5/SPI1_PCS2/UART3_RX/SDHC0_D2/FTM3_CH0" label="J15[P1]/SDHC0_D2" identifier="SDHC0_D2"/>
@@ -96,7 +96,7 @@
                <pin_label pin_num="37" pin_signal="PTA3/UART0_RTS_b/FTM0_CH0/JTAG_TMS/SWD_DIO" label="J9[2]/SWD_DIO"/>
                <pin_label pin_num="34" pin_signal="PTA0/UART0_CTS_b/UART0_COL_b/FTM0_CH5/JTAG_TCLK/SWD_CLK/EZP_CLK" label="J9[4]/SWD_CLK"/>
                <pin_label pin_num="68" pin_signal="PTB22/SPI2_SOUT/FB_AD29/CMP2_OUT" label="D12[1]/LEDRGB_RED" identifier="LED_RED;RED_LED"/>
-               <pin_label pin_num="67" pin_signal="PTB21/SPI2_SCK/FB_AD30/CMP1_OUT" label="D12[3]/LEDRGB_BLUE" identifier="LED_BLUE"/>
+               <pin_label pin_num="67" pin_signal="PTB21/SPI2_SCK/FB_AD30/CMP1_OUT" label="D12[3]/LEDRGB_BLUE" identifier="LED_BLUE;BLUE_LED"/>
                <pin_label pin_num="13" pin_signal="VREGIN" label="VREGIN_K64"/>
                <pin_label pin_num="29" pin_signal="EXTAL32" label="Y3[2]/EXTAL32_RTC" identifier="ETAL32K"/>
                <pin_label pin_num="28" pin_signal="XTAL32" label="Y3[1]/XTAL32_RTC" identifier="XTAL32K"/>
@@ -146,6 +146,11 @@
                         <data>true</data>
                      </feature>
                   </dependency>
+                  <dependency resourceType="Peripheral" resourceId="GPIOA" description="Peripheral GPIOA is not initialized" problem_level="1" source="Pins:BOARD_InitPins">
+                     <feature name="initialized" evaluation="equal">
+                        <data>true</data>
+                     </feature>
+                  </dependency>
                   <dependency resourceType="SWComponent" resourceId="platform.drivers.common" description="Pins initialization requires the COMMON Driver in the project." problem_level="2" source="Pins:BOARD_InitPins">
                      <feature name="enabled" evaluation="equal" configuration="core0">
                         <data>true</data>
@@ -184,6 +189,13 @@
                         <pin_feature name="gpio_init_state" value="true"/>
                      </pin_features>
                   </pin>
+                  <pin peripheral="GPIOB" signal="GPIO, 21" pin_num="67" pin_signal="PTB21/SPI2_SCK/FB_AD30/CMP1_OUT">
+                     <pin_features>
+                        <pin_feature name="identifier" value="BLUE_LED"/>
+                        <pin_feature name="direction" value="OUTPUT"/>
+                        <pin_feature name="gpio_init_state" value="true"/>
+                     </pin_features>
+                  </pin>
                   <pin peripheral="UART4" signal="RX" pin_num="86" pin_signal="PTC14/UART4_RX/FB_AD25">
                      <pin_features>
                         <pin_feature name="identifier" value="BT_RX"/>
@@ -193,6 +205,22 @@
                      <pin_features>
                         <pin_feature name="identifier" value="BT_TX"/>
                         <pin_feature name="direction" value="OUTPUT"/>
+                     </pin_features>
+                  </pin>
+                  <pin peripheral="GPIOC" signal="GPIO, 16" pin_num="90" pin_signal="PTC16/UART3_RX/ENET0_1588_TMR0/FB_CS5_b/FB_TSIZ1/FB_BE23_16_BLS15_8_b">
+                     <pin_features>
+                        <pin_feature name="identifier" value="BT_STATE"/>
+                        <pin_feature name="direction" value="INPUT"/>
+                        <pin_feature name="gpio_interrupt" value="kPORT_InterruptOrDMADisabled"/>
+                        <pin_feature name="pull_enable" value="enable"/>
+                     </pin_features>
+                  </pin>
+                  <pin peripheral="GPIOA" signal="GPIO, 4" pin_num="38" pin_signal="PTA4/LLWU_P3/FTM0_CH1/NMI_b/EZP_CS_b">
+                     <pin_features>
+                        <pin_feature name="identifier" value="ACKNOWLEDGE"/>
+                        <pin_feature name="direction" value="INPUT"/>
+                        <pin_feature name="gpio_interrupt" value="kPORT_InterruptFallingEdge"/>
+                        <pin_feature name="pull_select" value="up"/>
                      </pin_features>
                   </pin>
                </pins>
@@ -247,6 +275,7 @@
                   </pin>
                   <pin peripheral="GPIOA" signal="GPIO, 4" pin_num="38" pin_signal="PTA4/LLWU_P3/FTM0_CH1/NMI_b/EZP_CS_b">
                      <pin_features>
+                        <pin_feature name="identifier" value="SW3"/>
                         <pin_feature name="direction" value="INPUT"/>
                         <pin_feature name="gpio_interrupt" value="kPORT_InterruptFallingEdge"/>
                         <pin_feature name="slew_rate" value="fast"/>
@@ -286,6 +315,7 @@
                <pins>
                   <pin peripheral="GPIOB" signal="GPIO, 21" pin_num="67" pin_signal="PTB21/SPI2_SCK/FB_AD30/CMP1_OUT">
                      <pin_features>
+                        <pin_feature name="identifier" value="LED_BLUE"/>
                         <pin_feature name="direction" value="OUTPUT"/>
                         <pin_feature name="gpio_init_state" value="true"/>
                         <pin_feature name="slew_rate" value="slow"/>

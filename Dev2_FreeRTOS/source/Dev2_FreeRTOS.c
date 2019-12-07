@@ -18,9 +18,12 @@
 #define DEBUG_MSG 1
 
 void mainTask(void*);
+void btStatusTask(void*);
+void motorTask(void*);
 
 TaskHandle_t mainTaskHandle = NULL;
 QueueHandle_t btQueue = NULL;
+SemaphoreHandle_t ackSemphr = NULL;
 
 //void BLUETOOTH_IRQHandler()
 //{
@@ -41,6 +44,16 @@ QueueHandle_t btQueue = NULL;
 //	}
 //}
 
+void PORTA_IRQHandler()
+{
+	BaseType_t xHigherPriorityTaskWoken;
+	GPIO_PortClearInterruptFlags(BOARD_ACKNOWLEDGE_GPIO, 1 << BOARD_ACKNOWLEDGE_PIN);
+
+	xHigherPriorityTaskWoken = pdFALSE;
+	xSemaphoreGiveFromISR(ackSemphr, &xHigherPriorityTaskWoken);
+	portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+}
+
 int main(void) {
 
   	/* Init board hardware. */
@@ -51,6 +64,9 @@ int main(void) {
     BOARD_InitDebugConsole();
 
 
+    NVIC_SetPriority(PORTA_IRQn, 7);
+    NVIC_ClearPendingIRQ(PORTA_IRQn);
+    NVIC_EnableIRQ(PORTA_IRQn);
 //    UART_EnableInterrupts(BLUETOOTH_PERIPHERAL, kUART_RxDataRegFullInterruptEnable);
 //    NVIC_SetPriority(UART4_RX_TX_IRQn, 10);
 //    NVIC_ClearPendingIRQ(UART4_RX_TX_IRQn);
@@ -66,6 +82,13 @@ int main(void) {
     {
     	PRINTF("\n\r\033[31mMain Task creation failed\033[0m\n\r");
     }
+
+    if(xTaskCreate(btStatusTask, "BT Status Task", configMINIMAL_STACK_SIZE + 20, NULL, 2, NULL) == pdFALSE)
+    {
+    	PRINTF("\n\r\033[31mMain Task creation failed\033[0m\n\r");
+    }
+
+    ackSemphr = xSemaphoreCreateBinary();
 
     vTaskStartScheduler();
 
@@ -88,9 +111,41 @@ void mainTask(void* pvParameters)
 			if(charReceived == '\001') {
 				GPIO_PortToggle(BOARD_RED_LED_GPIO, 1 << BOARD_RED_LED_PIN);
 				PRINTF("\n\rAlarm");
+				if(xTaskCreate(motorTask, "Motor task", configMINIMAL_STACK_SIZE, NULL, 4, NULL) == pdFALSE)
+				{
+					PRINTF("\n\rMotor Task creation failed");
+				}
 			}
 			charReceived = '0';
 		}
 		vTaskDelay(pdMS_TO_TICKS(1000));
+	}
+}
+
+void btStatusTask(void* pvParameters)
+{
+	for(;;)
+	{
+		if(GPIO_PinRead(BOARD_BT_STATE_GPIO, BOARD_BT_STATE_PIN) == 1)
+			GPIO_PinWrite(BOARD_BLUE_LED_GPIO, BOARD_BLUE_LED_PIN, 0);
+		else
+			GPIO_PortToggle(BOARD_BLUE_LED_GPIO, 1 << BOARD_BLUE_LED_PIN);
+
+		vTaskDelay(pdMS_TO_TICKS(500));
+	}
+}
+
+void motorTask(void* pvParameters)
+{
+	for(;;)
+	{
+		GPIO_PortToggle(BOARD_RED_LED_GPIO, 1 << BOARD_RED_LED_PIN);
+		vTaskDelay(pdMS_TO_TICKS(200));
+
+		if(xSemaphoreTake(ackSemphr, 0) == pdTRUE)
+		{
+			GPIO_PinWrite(BOARD_RED_LED_GPIO, BOARD_RED_LED_PIN, 1);
+			vTaskDelete(NULL);
+		}
 	}
 }
