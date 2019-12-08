@@ -20,6 +20,7 @@
 void mainTask(void*);
 void btStatusTask(void*);
 void motorTask(void*);
+void buzzerTask(void*);
 
 TaskHandle_t mainTaskHandle = NULL;
 QueueHandle_t btQueue = NULL;
@@ -103,7 +104,6 @@ void mainTask(void* pvParameters)
 	PRINTF("\n\rMain Task\n\r");
 #endif
 
-
 	for(;;)
 	{
 		if(kUART_RxDataRegFullFlag & UART_GetStatusFlags(UART4)) {
@@ -114,6 +114,13 @@ void mainTask(void* pvParameters)
 				if(xTaskCreate(motorTask, "Motor task", configMINIMAL_STACK_SIZE, NULL, 4, NULL) == pdFALSE)
 				{
 					PRINTF("\n\rMotor Task creation failed");
+				}
+			}
+			else if(charReceived == '\002') {
+				PRINTF("\n\rBuzzer");
+				if(xTaskCreate(buzzerTask, "Buzzer task", configMINIMAL_STACK_SIZE, NULL, 5, NULL) == pdFALSE)
+				{
+					PRINTF("\n\rBuzzer Task creation failed");
 				}
 			}
 			charReceived = '0';
@@ -145,6 +152,21 @@ void motorTask(void* pvParameters)
 		if(xSemaphoreTake(ackSemphr, 0) == pdTRUE)
 		{
 			GPIO_PinWrite(BOARD_RED_LED_GPIO, BOARD_RED_LED_PIN, 1);
+			vTaskDelete(NULL);
+		}
+	}
+}
+
+void buzzerTask(void* pvParameters)
+{
+	for(;;)
+	{
+		GPIO_PortToggle(BOARD_BUZZER_GPIO, 1 << BOARD_BUZZER_PIN);
+		vTaskDelay(pdMS_TO_TICKS(5));
+
+		if(xSemaphoreTake(ackSemphr, 0) == pdTRUE)
+		{
+			GPIO_PinWrite(BOARD_BUZZER_GPIO, BOARD_BUZZER_PIN, 1);
 			vTaskDelete(NULL);
 		}
 	}

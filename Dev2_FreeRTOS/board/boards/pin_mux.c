@@ -15,7 +15,7 @@ processor_version: 6.0.1
 board: FRDM-K64F
 pin_labels:
 - {pin_num: '90', pin_signal: PTC16/UART3_RX/ENET0_1588_TMR0/FB_CS5_b/FB_TSIZ1/FB_BE23_16_BLS15_8_b, label: 'J1[2]', identifier: TMR_1588_0;BT_STATE}
-- {pin_num: '91', pin_signal: PTC17/UART3_TX/ENET0_1588_TMR1/FB_CS4_b/FB_TSIZ0/FB_BE31_24_BLS7_0_b, label: 'J1[4]', identifier: TMR_1588_1}
+- {pin_num: '91', pin_signal: PTC17/UART3_TX/ENET0_1588_TMR1/FB_CS4_b/FB_TSIZ0/FB_BE31_24_BLS7_0_b, label: 'J1[4]', identifier: TMR_1588_1;BUZZER}
 - {pin_num: '57', pin_signal: PTB9/SPI1_PCS1/UART3_CTS_b/FB_AD20, label: 'J1[6]'}
 - {pin_num: '35', pin_signal: PTA1/UART0_RX/FTM0_CH6/JTAG_TDI/EZP_DI, label: 'J1[8]'}
 - {pin_num: '69', pin_signal: PTB23/SPI2_SIN/SPI0_PCS5/FB_AD28, label: 'J1[10]'}
@@ -152,6 +152,7 @@ BOARD_InitPins:
     direction: INPUT, gpio_interrupt: kPORT_InterruptOrDMADisabled, pull_enable: enable}
   - {pin_num: '38', peripheral: GPIOA, signal: 'GPIO, 4', pin_signal: PTA4/LLWU_P3/FTM0_CH1/NMI_b/EZP_CS_b, identifier: ACKNOWLEDGE, direction: INPUT, gpio_interrupt: kPORT_InterruptFallingEdge,
     pull_select: up}
+  - {pin_num: '91', peripheral: GPIOC, signal: 'GPIO, 17', pin_signal: PTC17/UART3_TX/ENET0_1588_TMR1/FB_CS4_b/FB_TSIZ0/FB_BE31_24_BLS7_0_b, identifier: BUZZER, direction: OUTPUT}
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
 /* clang-format on */
@@ -200,6 +201,13 @@ void BOARD_InitPins(void)
     };
     /* Initialize GPIO functionality on pin PTC16 (pin 90)  */
     GPIO_PinInit(BOARD_BT_STATE_GPIO, BOARD_BT_STATE_PIN, &BT_STATE_config);
+
+    gpio_pin_config_t BUZZER_config = {
+        .pinDirection = kGPIO_DigitalOutput,
+        .outputLogic = 0U
+    };
+    /* Initialize GPIO functionality on pin PTC17 (pin 91)  */
+    GPIO_PinInit(BOARD_BUZZER_GPIO, BOARD_BUZZER_PIN, &BUZZER_config);
 
     gpio_pin_config_t GREEN_LED_config = {
         .pinDirection = kGPIO_DigitalOutput,
@@ -264,6 +272,9 @@ void BOARD_InitPins(void)
 
                       /* Pull Enable: Internal pullup or pulldown resistor is enabled on the corresponding pin. */
                       | (uint32_t)(PORT_PCR_PE_MASK));
+
+    /* PORTC17 (pin 91) is configured as PTC17 */
+    PORT_SetPinMux(BOARD_BUZZER_PORT, BOARD_BUZZER_PIN, kPORT_MuxAsGpio);
 
     /* PORTE26 (pin 33) is configured as PTE26 */
     PORT_SetPinMux(BOARD_GREEN_LED_PORT, BOARD_GREEN_LED_PIN, kPORT_MuxAsGpio);

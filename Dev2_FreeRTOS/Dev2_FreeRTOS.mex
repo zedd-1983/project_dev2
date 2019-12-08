@@ -25,7 +25,7 @@
             <processor_version>6.0.1</processor_version>
             <pin_labels>
                <pin_label pin_num="90" pin_signal="PTC16/UART3_RX/ENET0_1588_TMR0/FB_CS5_b/FB_TSIZ1/FB_BE23_16_BLS15_8_b" label="J1[2]" identifier="TMR_1588_0;BT_STATE"/>
-               <pin_label pin_num="91" pin_signal="PTC17/UART3_TX/ENET0_1588_TMR1/FB_CS4_b/FB_TSIZ0/FB_BE31_24_BLS7_0_b" label="J1[4]" identifier="TMR_1588_1"/>
+               <pin_label pin_num="91" pin_signal="PTC17/UART3_TX/ENET0_1588_TMR1/FB_CS4_b/FB_TSIZ0/FB_BE31_24_BLS7_0_b" label="J1[4]" identifier="TMR_1588_1;BUZZER"/>
                <pin_label pin_num="57" pin_signal="PTB9/SPI1_PCS1/UART3_CTS_b/FB_AD20" label="J1[6]"/>
                <pin_label pin_num="35" pin_signal="PTA1/UART0_RX/FTM0_CH6/JTAG_TDI/EZP_DI" label="J1[8]"/>
                <pin_label pin_num="69" pin_signal="PTB23/SPI2_SIN/SPI0_PCS5/FB_AD28" label="J1[10]"/>
@@ -221,6 +221,12 @@
                         <pin_feature name="direction" value="INPUT"/>
                         <pin_feature name="gpio_interrupt" value="kPORT_InterruptFallingEdge"/>
                         <pin_feature name="pull_select" value="up"/>
+                     </pin_features>
+                  </pin>
+                  <pin peripheral="GPIOC" signal="GPIO, 17" pin_num="91" pin_signal="PTC17/UART3_TX/ENET0_1588_TMR1/FB_CS4_b/FB_TSIZ0/FB_BE31_24_BLS7_0_b">
+                     <pin_features>
+                        <pin_feature name="identifier" value="BUZZER"/>
+                        <pin_feature name="direction" value="OUTPUT"/>
                      </pin_features>
                   </pin>
                </pins>
