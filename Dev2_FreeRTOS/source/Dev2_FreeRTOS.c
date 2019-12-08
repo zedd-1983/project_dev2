@@ -45,6 +45,9 @@ SemaphoreHandle_t ackSemphr = NULL;
 //	}
 //}
 
+/// @brief PORTA IRQ handler (ACK button)
+/// @details external interrupt handler, gives semaphore to motorTask and/or
+/// buzzer task
 void PORTA_IRQHandler()
 {
 	BaseType_t xHigherPriorityTaskWoken;
@@ -55,6 +58,10 @@ void PORTA_IRQHandler()
 	portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
+/// @brief Main function
+/// @details initializes development board hardware and configures priority of
+/// external interrupt. It proceeds to create two tasks - mainTask and btTask and
+/// creates a semaphore to be used between PORTA_IRQHandler and motorTask/buzzerTask
 int main(void) {
 
   	/* Init board hardware. */
@@ -64,10 +71,10 @@ int main(void) {
   	/* Init FSL debug console. */
     BOARD_InitDebugConsole();
 
-
     NVIC_SetPriority(PORTA_IRQn, 7);
     NVIC_ClearPendingIRQ(PORTA_IRQn);
     NVIC_EnableIRQ(PORTA_IRQn);
+
 //    UART_EnableInterrupts(BLUETOOTH_PERIPHERAL, kUART_RxDataRegFullInterruptEnable);
 //    NVIC_SetPriority(UART4_RX_TX_IRQn, 10);
 //    NVIC_ClearPendingIRQ(UART4_RX_TX_IRQn);
@@ -98,6 +105,9 @@ int main(void) {
     return 0 ;
 }
 
+/// @brief Main task
+/// @details first task created in main. Based on data received from Dev1 it creates
+/// either a motorTask or buzzerTask (or both if alarm-time catches up)
 void mainTask(void* pvParameters)
 {
 #ifdef DEBUG_MSG
@@ -132,6 +142,10 @@ void mainTask(void* pvParameters)
 	}
 }
 
+/// @brief Bluetooth status task
+/// @details checks connectivity status of the bluetooth module by monitoring
+/// its state pin (connected to PTC16), if connected Blue LED is turned on constantly,
+/// otherwise it just flashes
 void btStatusTask(void* pvParameters)
 {
 	for(;;)
@@ -145,6 +159,10 @@ void btStatusTask(void* pvParameters)
 	}
 }
 
+/// @brief Vibration motor task
+/// @details if created, controls a vibration motor (at the moments simulated by
+/// toggling a RED LED)
+/// This method will need to be adjusted to take advantage of PWM in the future
 void motorTask(void* pvParameters)
 {
 	for(;;)
@@ -160,6 +178,8 @@ void motorTask(void* pvParameters)
 	}
 }
 
+/// @brief Buzzer task
+/// @details if created, controls a buzzer connected to PTC17
 void buzzerTask(void* pvParameters)
 {
 	for(;;)
