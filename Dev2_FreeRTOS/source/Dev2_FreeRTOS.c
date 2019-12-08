@@ -108,7 +108,9 @@ void mainTask(void* pvParameters)
 	{
 		if(kUART_RxDataRegFullFlag & UART_GetStatusFlags(UART4)) {
 			uint8_t charReceived = UART_ReadByte(UART4);
+			PRINTF("\n\rValue received: %d", charReceived);
 			if(charReceived == '\001') {
+				charReceived = 0;
 				GPIO_PortToggle(BOARD_RED_LED_GPIO, 1 << BOARD_RED_LED_PIN);
 				PRINTF("\n\rAlarm");
 				if(xTaskCreate(motorTask, "Motor task", configMINIMAL_STACK_SIZE, NULL, 4, NULL) == pdFALSE)
@@ -117,13 +119,14 @@ void mainTask(void* pvParameters)
 				}
 			}
 			else if(charReceived == '\002') {
+				charReceived = 0;
 				PRINTF("\n\rBuzzer");
 				if(xTaskCreate(buzzerTask, "Buzzer task", configMINIMAL_STACK_SIZE, NULL, 5, NULL) == pdFALSE)
 				{
 					PRINTF("\n\rBuzzer Task creation failed");
 				}
 			}
-			charReceived = '0';
+			//charReceived = '0';
 		}
 		vTaskDelay(pdMS_TO_TICKS(1000));
 	}

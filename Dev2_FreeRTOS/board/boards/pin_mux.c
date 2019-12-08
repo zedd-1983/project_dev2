@@ -152,7 +152,8 @@ BOARD_InitPins:
     direction: INPUT, gpio_interrupt: kPORT_InterruptOrDMADisabled, pull_enable: enable}
   - {pin_num: '38', peripheral: GPIOA, signal: 'GPIO, 4', pin_signal: PTA4/LLWU_P3/FTM0_CH1/NMI_b/EZP_CS_b, identifier: ACKNOWLEDGE, direction: INPUT, gpio_interrupt: kPORT_InterruptFallingEdge,
     pull_select: up}
-  - {pin_num: '91', peripheral: GPIOC, signal: 'GPIO, 17', pin_signal: PTC17/UART3_TX/ENET0_1588_TMR1/FB_CS4_b/FB_TSIZ0/FB_BE31_24_BLS7_0_b, identifier: BUZZER, direction: OUTPUT}
+  - {pin_num: '91', peripheral: GPIOC, signal: 'GPIO, 17', pin_signal: PTC17/UART3_TX/ENET0_1588_TMR1/FB_CS4_b/FB_TSIZ0/FB_BE31_24_BLS7_0_b, identifier: BUZZER, direction: OUTPUT,
+    gpio_init_state: 'true'}
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
 /* clang-format on */
@@ -204,7 +205,7 @@ void BOARD_InitPins(void)
 
     gpio_pin_config_t BUZZER_config = {
         .pinDirection = kGPIO_DigitalOutput,
-        .outputLogic = 0U
+        .outputLogic = 1U
     };
     /* Initialize GPIO functionality on pin PTC17 (pin 91)  */
     GPIO_PinInit(BOARD_BUZZER_GPIO, BOARD_BUZZER_PIN, &BUZZER_config);

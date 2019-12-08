@@ -227,6 +227,7 @@
                      <pin_features>
                         <pin_feature name="identifier" value="BUZZER"/>
                         <pin_feature name="direction" value="OUTPUT"/>
+                        <pin_feature name="gpio_init_state" value="true"/>
                      </pin_features>
                   </pin>
                </pins>
