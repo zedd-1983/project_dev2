@@ -17,7 +17,7 @@
 
 #define DEBUG_MSG 1
 
-void mainTask(void*);
+void dev2MainTask(void*);
 void btStatusTask(void*);
 void motorTask(void*);
 void buzzerTask(void*);
@@ -25,25 +25,6 @@ void buzzerTask(void*);
 TaskHandle_t mainTaskHandle = NULL;
 QueueHandle_t btQueue = NULL;
 SemaphoreHandle_t ackSemphr = NULL;
-
-//void BLUETOOTH_IRQHandler()
-//{
-//	char charReceived;
-//
-//	if(kUART_RxDataRegFullFlag & UART_GetStatusFlags(BLUETOOTH_PERIPHERAL))
-//	{
-//		BaseType_t xHigherPriorityTaskWoken;
-//		charReceived = UART_ReadByte(BLUETOOTH_PERIPHERAL);
-//
-//		xHigherPriorityTaskWoken = pdFALSE;
-//		xQueueSendFromISR(btQueue, &charReceived, &xHigherPriorityTaskWoken);
-//
-//		GPIO_PortToggle(BOARD_GREEN_LED_GPIO, 1 << BOARD_GREEN_LED_PIN);
-//		UART_WriteByte(BLUETOOTH_PERIPHERAL, charReceived);
-//
-//		portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-//	}
-//}
 
 /// @brief PORTA IRQ handler (ACK button)
 /// @details external interrupt handler, gives semaphore to motorTask and/or
@@ -86,7 +67,7 @@ int main(void) {
 
     btQueue = xQueueCreate(5, 5);
 
-    if(xTaskCreate(mainTask, "Main Task", configMINIMAL_STACK_SIZE + 20, NULL, 3, &mainTaskHandle) == pdFALSE)
+    if(xTaskCreate(dev2MainTask, "Main Task", configMINIMAL_STACK_SIZE + 20, NULL, 3, &mainTaskHandle) == pdFALSE)
     {
     	PRINTF("\n\r\033[31mMain Task creation failed\033[0m\n\r");
     }
@@ -108,7 +89,7 @@ int main(void) {
 /// @brief Main task
 /// @details first task created in main. Based on data received from Dev1 it creates
 /// either a motorTask or buzzerTask (or both if alarm-time catches up)
-void mainTask(void* pvParameters)
+void dev2MainTask(void* pvParameters)
 {
 #ifdef DEBUG_MSG
 	PRINTF("\n\rMain Task\n\r");
