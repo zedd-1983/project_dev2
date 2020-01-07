@@ -84,12 +84,90 @@ void BLUETOOTH_init(void) {
 }
 
 /***********************************************************************************************************************
+ * BUZZER_FTM initialization code
+ **********************************************************************************************************************/
+/* clang-format off */
+/* TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
+instance:
+- name: 'BUZZER_FTM'
+- type: 'ftm'
+- mode: 'EdgeAligned'
+- type_id: 'ftm_04a15ae4af2b404bf2ae403c3dbe98b3'
+- functional_group: 'BOARD_InitPeripherals'
+- peripheral: 'FTM0'
+- config_sets:
+  - ftm_main_config:
+    - ftm_config:
+      - clockSource: 'kFTM_SystemClock'
+      - clockSourceFreq: 'GetFreq'
+      - prescale: 'kFTM_Prescale_Divide_1'
+      - timerFrequency: '2000'
+      - bdmMode: 'kFTM_BdmMode_0'
+      - pwmSyncMode: 'kFTM_SoftwareTrigger'
+      - reloadPoints: ''
+      - faultMode: 'kFTM_Fault_Disable'
+      - faultFilterValue: '0'
+      - deadTimePrescale: 'kFTM_Deadtime_Prescale_1'
+      - deadTimeValue: '0'
+      - extTriggers: ''
+      - chnlInitState: 'kFTM_Chnl0OutInitHighLevel'
+      - chnlPolarity: ''
+      - useGlobalTimeBase: 'false'
+    - timer_interrupts: ''
+    - enable_irq: 'false'
+    - ftm_interrupt:
+      - IRQn: 'FTM0_IRQn'
+      - enable_priority: 'false'
+      - priority: '0'
+      - enable_custom_name: 'false'
+    - EnableTimerInInit: 'false'
+  - ftm_edge_aligned_mode:
+    - ftm_edge_aligned_channels_config:
+      - 0:
+        - edge_aligned_mode: 'kFTM_EdgeAlignedPwm'
+        - edge_aligned_pwm:
+          - chnlNumber: 'kFTM_Chnl_0'
+          - level: 'kFTM_HighTrue'
+          - dutyCyclePercent: '50'
+          - enable_chan_irq: 'false'
+ * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
+/* clang-format on */
+const ftm_config_t BUZZER_FTM_config = {
+  .prescale = kFTM_Prescale_Divide_1,
+  .bdmMode = kFTM_BdmMode_0,
+  .pwmSyncMode = kFTM_SoftwareTrigger,
+  .reloadPoints = 0,
+  .faultMode = kFTM_Fault_Disable,
+  .faultFilterValue = 0,
+  .deadTimePrescale = kFTM_Deadtime_Prescale_1,
+  .deadTimeValue = 0,
+  .extTriggers = 0,
+  .chnlInitState = 1,
+  .chnlPolarity = 0,
+  .useGlobalTimeBase = false
+};
+
+const ftm_chnl_pwm_signal_param_t BUZZER_FTM_pwmSignalParams[] = { 
+  {
+    .chnlNumber = kFTM_Chnl_0,
+    .level = kFTM_HighTrue,
+    .dutyCyclePercent = 50
+  }
+};
+
+void BUZZER_FTM_init(void) {
+  FTM_Init(BUZZER_FTM_PERIPHERAL, &BUZZER_FTM_config);
+  FTM_SetupPwm(BUZZER_FTM_PERIPHERAL, BUZZER_FTM_pwmSignalParams, sizeof(BUZZER_FTM_pwmSignalParams) / sizeof(ftm_chnl_pwm_signal_param_t), kFTM_EdgeAlignedPwm, 2000U, BUZZER_FTM_CLOCK_SOURCE);
+}
+
+/***********************************************************************************************************************
  * Initialization functions
  **********************************************************************************************************************/
 void BOARD_InitPeripherals(void)
 {
   /* Initialize components */
   BLUETOOTH_init();
+  BUZZER_FTM_init();
 }
 
 /***********************************************************************************************************************

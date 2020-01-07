@@ -79,6 +79,12 @@ void BOARD_InitBootPins(void);
 #define BOARD_BUZZER_PIN 17U    /*!<@brief PORTC pin index: 17 */
                                 /* @} */
 
+/*! @name PORTC1 (number 71), J1[5]
+  @{ */
+#define BOARD_BUZZER_FTM_PORT PORTC /*!<@brief PORT device name: PORTC */
+#define BOARD_BUZZER_FTM_PIN 1U     /*!<@brief PORTC pin index: 1 */
+                                    /* @} */
+
 /*!
  * @brief Configures pin routing and optionally pin electrical features.
  *

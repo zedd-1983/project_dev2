@@ -116,6 +116,15 @@ void dev2MainTask(void* pvParameters)
 				{
 					PRINTF("\n\rBuzzer Task creation failed");
 				}
+			} else if(charReceived == 'X')
+			{
+				charReceived = 0;
+				FTM_StartTimer(BUZZER_FTM_PERIPHERAL, BUZZER_FTM_CLOCK_SOURCE);
+				PRINTF("\n\rBuzzer");
+				if(xTaskCreate(buzzerTask, "Buzzer task", configMINIMAL_STACK_SIZE, NULL, 5, NULL) == pdFALSE)
+				{
+					PRINTF("\n\rBuzzer Task creation failed");
+				}
 			}
 			//charReceived = '0';
 		}
@@ -163,15 +172,20 @@ void motorTask(void* pvParameters)
 /// @details if created, controls a buzzer connected to PTC17
 void buzzerTask(void* pvParameters)
 {
+	// enable FTM on PTC1
+	//(FTM_StartTimer(BUZZER_FTM_PERIPHERAL, BUZZER_FTM_CLOCK_SOURCE);
 	for(;;)
 	{
-		GPIO_PortToggle(BOARD_BUZZER_GPIO, 1 << BOARD_BUZZER_PIN);
+//		GPIO_PortToggle(BOARD_BUZZER_GPIO, 1 << BOARD_BUZZER_PIN);
 		vTaskDelay(pdMS_TO_TICKS(5));
 
 		if(xSemaphoreTake(ackSemphr, 0) == pdTRUE)
 		{
-			GPIO_PinWrite(BOARD_BUZZER_GPIO, BOARD_BUZZER_PIN, 1);
+			FTM_StopTimer(BUZZER_FTM_PERIPHERAL);
 			vTaskDelete(NULL);
+			// disable FTM on PTC1
+//			GPIO_PinWrite(BOARD_BUZZER_GPIO, BOARD_BUZZER_PIN, 1);
+//			vTaskDelete(NULL);
 		}
 	}
 }

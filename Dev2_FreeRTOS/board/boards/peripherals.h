@@ -12,6 +12,7 @@
 #include "fsl_common.h"
 #include "fsl_uart.h"
 #include "fsl_clock.h"
+#include "fsl_ftm.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -25,11 +26,20 @@ extern "C" {
 #define BLUETOOTH_PERIPHERAL UART4
 /* Definition of the clock source frequency */
 #define BLUETOOTH_CLOCK_SOURCE CLOCK_GetFreq(UART4_CLK_SRC)
+/* Definition of peripheral ID */
+#define BUZZER_FTM_PERIPHERAL FTM0
+/* Definition of the clock source frequency */
+#define BUZZER_FTM_CLOCK_SOURCE CLOCK_GetFreq(kCLOCK_BusClk)
+/* BUZZER_FTM interrupt vector ID (number). */
+#define BUZZER_FTM_IRQN FTM0_IRQn
+/* BUZZER_FTM interrupt handler identifier. */
+#define BUZZER_FTM_IRQHANDLER FTM0_IRQHandler
 
 /***********************************************************************************************************************
  * Global variables
  **********************************************************************************************************************/
 extern const uart_config_t BLUETOOTH_config;
+extern const ftm_config_t BUZZER_FTM_config;
 
 /***********************************************************************************************************************
  * Initialization functions
