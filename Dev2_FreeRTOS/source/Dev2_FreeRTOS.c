@@ -125,7 +125,12 @@ void dev2MainTask(void* pvParameters)
 				{
 					PRINTF("\n\rBuzzer Task creation failed");
 				}
+			} else if(charReceived == 'a')
+			{
+				charReceived = 0;
+				PRINTF("\n\rACKNOWLEDGED from PHONE");
 			}
+
 			//charReceived = '0';
 		}
 		vTaskDelay(pdMS_TO_TICKS(1000));
