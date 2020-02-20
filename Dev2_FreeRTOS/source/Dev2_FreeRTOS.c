@@ -16,6 +16,10 @@
 #include "fsl_debug_console.h"
 
 #define DEBUG_MSG 1
+#define SCHEDULED_WAKE_UP '\001'
+#define INTENSIVE_WAKE_UP '\002'
+#define ACK_FROM_PHONE 'a'
+#define ACK_FROM_DEVICE 'b'
 
 void dev2MainTask(void*);
 void btStatusTask(void*);
@@ -23,6 +27,8 @@ void motorTask(void*);
 void buzzerTask(void*);
 
 TaskHandle_t mainTaskHandle = NULL;
+TaskHandle_t motorTaskHandle = NULL;
+TaskHandle_t buzzerTaskHandle = NULL;
 QueueHandle_t btQueue = NULL;
 SemaphoreHandle_t ackSemphr = NULL;
 
@@ -100,23 +106,33 @@ void dev2MainTask(void* pvParameters)
 		if(kUART_RxDataRegFullFlag & UART_GetStatusFlags(UART4)) {
 			uint8_t charReceived = UART_ReadByte(UART4);
 			PRINTF("\n\rValue received: %d", charReceived);
-			if(charReceived == '\001') {
+			if(charReceived == SCHEDULED_WAKE_UP) {
 				charReceived = 0;
 				GPIO_PortToggle(BOARD_RED_LED_GPIO, 1 << BOARD_RED_LED_PIN);
 				PRINTF("\n\rAlarm");
-				if(xTaskCreate(motorTask, "Motor task", configMINIMAL_STACK_SIZE, NULL, 4, NULL) == pdFALSE)
+				if(xTaskCreate(motorTask, "Motor task", configMINIMAL_STACK_SIZE, NULL, 4, &motorTaskHandle) == pdFALSE)
 				{
 					PRINTF("\n\rMotor Task creation failed");
 				}
 			}
-			else if(charReceived == '\002') {
+			else if(charReceived == INTENSIVE_WAKE_UP) {
 				charReceived = 0;
 				PRINTF("\n\rBuzzer");
-				if(xTaskCreate(buzzerTask, "Buzzer task", configMINIMAL_STACK_SIZE, NULL, 5, NULL) == pdFALSE)
+				if(xTaskCreate(buzzerTask, "Buzzer task", configMINIMAL_STACK_SIZE, NULL, 5, &buzzerTaskHandle) == pdFALSE)
 				{
 					PRINTF("\n\rBuzzer Task creation failed");
 				}
-			} else if(charReceived == 'X')
+			}
+			else if(charReceived == ACK_FROM_PHONE &&
+					((eTaskGetState(motorTaskHandle) == eReady) || (eTaskGetState(buzzerTaskHandle) == eReady)))
+			{
+				charReceived = 0;
+				PRINTF("\n\rACKNOWLEDGED from PHONE");
+				// give semaphore to stop ongoing scheduled and/or intensive wake_up
+				xSemaphoreGive(ackSemphr);
+
+			}
+			else if(charReceived == 'X')
 			{
 				charReceived = 0;
 				FTM_StartTimer(BUZZER_FTM_PERIPHERAL, BUZZER_FTM_CLOCK_SOURCE);
@@ -125,10 +141,6 @@ void dev2MainTask(void* pvParameters)
 				{
 					PRINTF("\n\rBuzzer Task creation failed");
 				}
-			} else if(charReceived == 'a')
-			{
-				charReceived = 0;
-				PRINTF("\n\rACKNOWLEDGED from PHONE");
 			}
 
 			//charReceived = '0';
@@ -160,6 +172,7 @@ void btStatusTask(void* pvParameters)
 /// This method will need to be adjusted to take advantage of PWM in the future
 void motorTask(void* pvParameters)
 {
+	PRINTF("\n\rMotor (scheduled wake-up) task created");
 	for(;;)
 	{
 		GPIO_PortToggle(BOARD_RED_LED_GPIO, 1 << BOARD_RED_LED_PIN);
@@ -168,6 +181,7 @@ void motorTask(void* pvParameters)
 		if(xSemaphoreTake(ackSemphr, 0) == pdTRUE)
 		{
 			GPIO_PinWrite(BOARD_RED_LED_GPIO, BOARD_RED_LED_PIN, 1);
+			PRINTF("\n\rMotor task deleted");
 			vTaskDelete(NULL);
 		}
 	}
@@ -177,6 +191,7 @@ void motorTask(void* pvParameters)
 /// @details if created, controls a buzzer connected to PTC17
 void buzzerTask(void* pvParameters)
 {
+	PRINTF("\n\rBuzzer (intensive wake-up) task created");
 	// enable FTM on PTC1
 	//(FTM_StartTimer(BUZZER_FTM_PERIPHERAL, BUZZER_FTM_CLOCK_SOURCE);
 	for(;;)
@@ -187,6 +202,7 @@ void buzzerTask(void* pvParameters)
 		if(xSemaphoreTake(ackSemphr, 0) == pdTRUE)
 		{
 			FTM_StopTimer(BUZZER_FTM_PERIPHERAL);
+			PRINTF("\n\rBuzzer task deleted");
 			vTaskDelete(NULL);
 			// disable FTM on PTC1
 //			GPIO_PinWrite(BOARD_BUZZER_GPIO, BOARD_BUZZER_PIN, 1);
