@@ -110,7 +110,7 @@ void dev2MainTask(void* pvParameters)
 				charReceived = 0;
 				GPIO_PortToggle(BOARD_RED_LED_GPIO, 1 << BOARD_RED_LED_PIN);
 				PRINTF("\n\rAlarm");
-				if(xTaskCreate(motorTask, "Motor task", configMINIMAL_STACK_SIZE, NULL, 4, &motorTaskHandle) == pdFALSE)
+				if(xTaskCreate(motorTask, "Motor task", configMINIMAL_STACK_SIZE + 100, NULL, 4, &motorTaskHandle) == pdFALSE)
 				{
 					PRINTF("\n\rMotor Task creation failed");
 				}
@@ -118,13 +118,13 @@ void dev2MainTask(void* pvParameters)
 			else if(charReceived == INTENSIVE_WAKE_UP) {
 				charReceived = 0;
 				PRINTF("\n\rBuzzer");
-				if(xTaskCreate(buzzerTask, "Buzzer task", configMINIMAL_STACK_SIZE, NULL, 5, &buzzerTaskHandle) == pdFALSE)
+				if(xTaskCreate(buzzerTask, "Buzzer task", configMINIMAL_STACK_SIZE + 100, NULL, 5, &buzzerTaskHandle) == pdFALSE)
 				{
 					PRINTF("\n\rBuzzer Task creation failed");
 				}
 			}
-			else if(charReceived == ACK_FROM_PHONE &&
-					((eTaskGetState(motorTaskHandle) == eReady) || (eTaskGetState(buzzerTaskHandle) == eReady)))
+			else if(charReceived == ACK_FROM_PHONE)
+					//((eTaskGetState(motorTaskHandle) == eReady) || (eTaskGetState(buzzerTaskHandle) == eReady)))
 			{
 				charReceived = 0;
 				PRINTF("\n\rACKNOWLEDGED from PHONE");
@@ -132,16 +132,16 @@ void dev2MainTask(void* pvParameters)
 				xSemaphoreGive(ackSemphr);
 
 			}
-			else if(charReceived == 'X')
-			{
-				charReceived = 0;
-				FTM_StartTimer(BUZZER_FTM_PERIPHERAL, BUZZER_FTM_CLOCK_SOURCE);
-				PRINTF("\n\rBuzzer");
-				if(xTaskCreate(buzzerTask, "Buzzer task", configMINIMAL_STACK_SIZE, NULL, 5, NULL) == pdFALSE)
-				{
-					PRINTF("\n\rBuzzer Task creation failed");
-				}
-			}
+//			else if(charReceived == 'X')
+//			{
+//				charReceived = 0;
+//				FTM_StartTimer(BUZZER_FTM_PERIPHERAL, BUZZER_FTM_CLOCK_SOURCE);
+//				PRINTF("\n\rBuzzer");
+//				if(xTaskCreate(buzzerTask, "Buzzer task", configMINIMAL_STACK_SIZE, NULL, 5, NULL) == pdFALSE)
+//				{
+//					PRINTF("\n\rBuzzer Task creation failed");
+//				}
+//			}
 
 			//charReceived = '0';
 		}
@@ -193,7 +193,8 @@ void buzzerTask(void* pvParameters)
 {
 	PRINTF("\n\rBuzzer (intensive wake-up) task created");
 	// enable FTM on PTC1
-	//(FTM_StartTimer(BUZZER_FTM_PERIPHERAL, BUZZER_FTM_CLOCK_SOURCE);
+	FTM_StartTimer(BUZZER_FTM_PERIPHERAL, BUZZER_FTM_CLOCK_SOURCE);
+
 	for(;;)
 	{
 //		GPIO_PortToggle(BOARD_BUZZER_GPIO, 1 << BOARD_BUZZER_PIN);
