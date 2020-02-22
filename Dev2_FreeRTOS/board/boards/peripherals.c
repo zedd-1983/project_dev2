@@ -101,7 +101,7 @@ instance:
       - clockSource: 'kFTM_SystemClock'
       - clockSourceFreq: 'GetFreq'
       - prescale: 'kFTM_Prescale_Divide_1'
-      - timerFrequency: '2000'
+      - timerFrequency: '20000'
       - bdmMode: 'kFTM_BdmMode_0'
       - pwmSyncMode: 'kFTM_SoftwareTrigger'
       - reloadPoints: ''
@@ -157,7 +157,7 @@ const ftm_chnl_pwm_signal_param_t BUZZER_FTM_pwmSignalParams[] = {
 
 void BUZZER_FTM_init(void) {
   FTM_Init(BUZZER_FTM_PERIPHERAL, &BUZZER_FTM_config);
-  FTM_SetupPwm(BUZZER_FTM_PERIPHERAL, BUZZER_FTM_pwmSignalParams, sizeof(BUZZER_FTM_pwmSignalParams) / sizeof(ftm_chnl_pwm_signal_param_t), kFTM_EdgeAlignedPwm, 2000U, BUZZER_FTM_CLOCK_SOURCE);
+  FTM_SetupPwm(BUZZER_FTM_PERIPHERAL, BUZZER_FTM_pwmSignalParams, sizeof(BUZZER_FTM_pwmSignalParams) / sizeof(ftm_chnl_pwm_signal_param_t), kFTM_EdgeAlignedPwm, 20000U, BUZZER_FTM_CLOCK_SOURCE);
 }
 
 /***********************************************************************************************************************

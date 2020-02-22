@@ -189,25 +189,22 @@ void motorTask(void* pvParameters)
 
 /// @brief Buzzer task
 /// @details if created, controls a buzzer connected to PTC17
+/// if an acknowledgment is received, stops the FTM (buzzer)
 void buzzerTask(void* pvParameters)
 {
 	PRINTF("\n\rBuzzer (intensive wake-up) task created");
-	// enable FTM on PTC1
 	FTM_StartTimer(BUZZER_FTM_PERIPHERAL, BUZZER_FTM_CLOCK_SOURCE);
 
 	for(;;)
 	{
-//		GPIO_PortToggle(BOARD_BUZZER_GPIO, 1 << BOARD_BUZZER_PIN);
-		vTaskDelay(pdMS_TO_TICKS(5));
+		vTaskDelay(pdMS_TO_TICKS(1000));
 
 		if(xSemaphoreTake(ackSemphr, 0) == pdTRUE)
 		{
 			FTM_StopTimer(BUZZER_FTM_PERIPHERAL);
 			PRINTF("\n\rBuzzer task deleted");
 			vTaskDelete(NULL);
-			// disable FTM on PTC1
-//			GPIO_PinWrite(BOARD_BUZZER_GPIO, BOARD_BUZZER_PIN, 1);
-//			vTaskDelete(NULL);
 		}
+		vTaskDelay(pdMS_TO_TICKS(100));
 	}
 }
