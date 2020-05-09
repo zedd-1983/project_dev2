@@ -41,7 +41,7 @@ void PORTA_IRQHandler()
 	GPIO_PortClearInterruptFlags(BOARD_ACKNOWLEDGE_GPIO, 1 << BOARD_ACKNOWLEDGE_PIN);
 
 	// temporary
-	//GPIO_PortToggle(BOARD_MOTOR_GPIO, 1 << BOARD_MOTOR_PIN);
+	GPIO_PortToggle(BOARD_MOTOR_GPIO, 1 << BOARD_MOTOR_PIN);
 
 	xHigherPriorityTaskWoken = pdFALSE;
 	xSemaphoreGiveFromISR(ackSemphr, &xHigherPriorityTaskWoken);
