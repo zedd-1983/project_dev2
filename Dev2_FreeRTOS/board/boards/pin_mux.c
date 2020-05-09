@@ -21,7 +21,7 @@ pin_labels:
 - {pin_num: '69', pin_signal: PTB23/SPI2_SIN/SPI0_PCS5/FB_AD28, label: 'J1[10]'}
 - {pin_num: '36', pin_signal: PTA2/UART0_TX/FTM0_CH7/JTAG_TDO/TRACE_SWO/EZP_DO, label: 'J1[12]/J9[6]/TRACE_SWO'}
 - {pin_num: '72', pin_signal: ADC0_SE4b/CMP1_IN0/PTC2/SPI0_PCS2/UART1_CTS_b/FTM0_CH1/FB_AD12/I2S0_TX_FS, label: 'J1[14]'}
-- {pin_num: '73', pin_signal: CMP1_IN1/PTC3/LLWU_P7/SPI0_PCS1/UART1_RX/FTM0_CH2/CLKOUT/I2S0_TX_BCLK, label: 'J1[16]'}
+- {pin_num: '73', pin_signal: CMP1_IN1/PTC3/LLWU_P7/SPI0_PCS1/UART1_RX/FTM0_CH2/CLKOUT/I2S0_TX_BCLK, label: 'J1[16]', identifier: MOTOR}
 - {pin_num: '64', pin_signal: PTB18/CAN0_TX/FTM2_CH0/I2S0_TX_BCLK/FB_AD15/FTM2_QD_PHA, label: 'J1[1]'}
 - {pin_num: '65', pin_signal: PTB19/CAN0_RX/FTM2_CH1/I2S0_TX_FS/FB_OE_b/FTM2_QD_PHB, label: 'J1[3]'}
 - {pin_num: '71', pin_signal: ADC0_SE15/PTC1/LLWU_P6/SPI0_PCS3/UART1_RTS_b/FTM0_CH0/FB_AD13/I2S0_TXD0, label: 'J1[5]', identifier: BUZZER_FTM}
@@ -155,6 +155,7 @@ BOARD_InitPins:
   - {pin_num: '91', peripheral: GPIOC, signal: 'GPIO, 17', pin_signal: PTC17/UART3_TX/ENET0_1588_TMR1/FB_CS4_b/FB_TSIZ0/FB_BE31_24_BLS7_0_b, identifier: BUZZER, direction: OUTPUT,
     gpio_init_state: 'true'}
   - {pin_num: '71', peripheral: FTM0, signal: 'CH, 0', pin_signal: ADC0_SE15/PTC1/LLWU_P6/SPI0_PCS3/UART1_RTS_b/FTM0_CH0/FB_AD13/I2S0_TXD0, direction: OUTPUT}
+  - {pin_num: '73', peripheral: GPIOC, signal: 'GPIO, 3', pin_signal: CMP1_IN1/PTC3/LLWU_P7/SPI0_PCS1/UART1_RX/FTM0_CH2/CLKOUT/I2S0_TX_BCLK, direction: OUTPUT}
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
 /* clang-format on */
@@ -196,6 +197,13 @@ void BOARD_InitPins(void)
     };
     /* Initialize GPIO functionality on pin PTB22 (pin 68)  */
     GPIO_PinInit(BOARD_RED_LED_GPIO, BOARD_RED_LED_PIN, &RED_LED_config);
+
+    gpio_pin_config_t MOTOR_config = {
+        .pinDirection = kGPIO_DigitalOutput,
+        .outputLogic = 0U
+    };
+    /* Initialize GPIO functionality on pin PTC3 (pin 73)  */
+    GPIO_PinInit(BOARD_MOTOR_GPIO, BOARD_MOTOR_PIN, &MOTOR_config);
 
     gpio_pin_config_t BT_STATE_config = {
         .pinDirection = kGPIO_DigitalInput,
@@ -280,6 +288,9 @@ void BOARD_InitPins(void)
 
     /* PORTC17 (pin 91) is configured as PTC17 */
     PORT_SetPinMux(BOARD_BUZZER_PORT, BOARD_BUZZER_PIN, kPORT_MuxAsGpio);
+
+    /* PORTC3 (pin 73) is configured as PTC3 */
+    PORT_SetPinMux(BOARD_MOTOR_PORT, BOARD_MOTOR_PIN, kPORT_MuxAsGpio);
 
     /* PORTE26 (pin 33) is configured as PTE26 */
     PORT_SetPinMux(BOARD_GREEN_LED_PORT, BOARD_GREEN_LED_PIN, kPORT_MuxAsGpio);

@@ -85,6 +85,13 @@ void BOARD_InitBootPins(void);
 #define BOARD_BUZZER_FTM_PIN 1U     /*!<@brief PORTC pin index: 1 */
                                     /* @} */
 
+/*! @name PORTC3 (number 73), J1[16]
+  @{ */
+#define BOARD_MOTOR_GPIO GPIOC /*!<@brief GPIO device name: GPIOC */
+#define BOARD_MOTOR_PORT PORTC /*!<@brief PORT device name: PORTC */
+#define BOARD_MOTOR_PIN 3U     /*!<@brief PORTC pin index: 3 */
+                               /* @} */
+
 /*!
  * @brief Configures pin routing and optionally pin electrical features.
  *

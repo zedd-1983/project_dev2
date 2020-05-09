@@ -40,6 +40,9 @@ void PORTA_IRQHandler()
 	BaseType_t xHigherPriorityTaskWoken;
 	GPIO_PortClearInterruptFlags(BOARD_ACKNOWLEDGE_GPIO, 1 << BOARD_ACKNOWLEDGE_PIN);
 
+	// temporary
+	//GPIO_PortToggle(BOARD_MOTOR_GPIO, 1 << BOARD_MOTOR_PIN);
+
 	xHigherPriorityTaskWoken = pdFALSE;
 	xSemaphoreGiveFromISR(ackSemphr, &xHigherPriorityTaskWoken);
 	portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
@@ -173,6 +176,7 @@ void btStatusTask(void* pvParameters)
 void motorTask(void* pvParameters)
 {
 	PRINTF("\n\rMotor (scheduled wake-up) task created");
+	GPIO_PinWrite(BOARD_MOTOR_GPIO, BOARD_MOTOR_PIN, 1);
 	for(;;)
 	{
 		GPIO_PortToggle(BOARD_RED_LED_GPIO, 1 << BOARD_RED_LED_PIN);
@@ -181,6 +185,7 @@ void motorTask(void* pvParameters)
 		if(xSemaphoreTake(ackSemphr, 0) == pdTRUE)
 		{
 			GPIO_PinWrite(BOARD_RED_LED_GPIO, BOARD_RED_LED_PIN, 1);
+			GPIO_PinWrite(BOARD_MOTOR_GPIO, BOARD_MOTOR_PIN, 0);
 			PRINTF("\n\rMotor task deleted");
 			vTaskDelete(NULL);
 		}
