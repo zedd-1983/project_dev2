@@ -86,6 +86,7 @@ void PIT_Init(PIT_Type *base, const pit_config_t *config)
     {
         base->CHANNEL[i].TCTRL &= ~PIT_TCTRL_TEN_MASK;
     }
+    i = 0;
 #endif /* FSL_FEATURE_PIT_TIMER_COUNT */
 
     /* Config timer operation when in debug mode */

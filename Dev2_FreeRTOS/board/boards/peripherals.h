@@ -13,6 +13,7 @@
 #include "fsl_uart.h"
 #include "fsl_clock.h"
 #include "fsl_ftm.h"
+#include "fsl_pit.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -34,12 +35,28 @@ extern "C" {
 #define BUZZER_FTM_IRQN FTM0_IRQn
 /* BUZZER_FTM interrupt handler identifier. */
 #define BUZZER_FTM_IRQHANDLER FTM0_IRQHandler
+/* BOARD_InitPeripherals defines for PIT */
+/* Definition of peripheral ID. */
+#define PIT_1_PERIPHERAL PIT
+/* Definition of clock source. */
+#define PIT_1_CLOCK_SOURCE kCLOCK_BusClk
+/* Definition of clock source frequency. */
+#define PIT_1_CLK_FREQ CLOCK_GetFreq(PIT_1_CLOCK_SOURCE)
+/* Definition of ticks count for channel 0. */
+#define PIT_1_0_TICKS USEC_TO_COUNT(1000000U, PIT_1_CLK_FREQ) - 1U
+/* PIT_1 interrupt vector ID (number). */
+#define PIT_1_0_IRQN PIT0_IRQn
+/* PIT_1 interrupt vector priority. */
+#define PIT_1_0_IRQ_PRIORITY 10
+/* PIT_1 interrupt handler identifier. */
+#define PIT_1_0_IRQHANDLER PIT0_IRQHandler
 
 /***********************************************************************************************************************
  * Global variables
  **********************************************************************************************************************/
 extern const uart_config_t BLUETOOTH_config;
 extern const ftm_config_t BUZZER_FTM_config;
+extern const pit_config_t PIT_1_config;
 
 /***********************************************************************************************************************
  * Initialization functions

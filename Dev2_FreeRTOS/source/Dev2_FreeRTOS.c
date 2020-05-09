@@ -31,7 +31,32 @@ TaskHandle_t motorTaskHandle = NULL;
 TaskHandle_t buzzerTaskHandle = NULL;
 QueueHandle_t btQueue = NULL;
 SemaphoreHandle_t ackSemphr = NULL;
+SemaphoreHandle_t countDownReachedSemphr = NULL;
+//uint8_t timeout = 0;
+bool motorTaskIsRunning = false;
+bool buzzerTaskIsRunning = false;
 
+
+void PIT_1_0_IRQHANDLER()
+{
+	static uint8_t timeout = 0;
+	PIT_ClearStatusFlags(PIT, kPIT_Chnl_0, kPIT_TimerFlag);
+	static BaseType_t xHigherPriorityTaskWoken;
+	xHigherPriorityTaskWoken = pdFALSE;
+	timeout++;
+	PRINTF("\n\r%d", timeout);
+
+	if(timeout > 10) {
+		if(motorTaskIsRunning) {
+			// send semaphore to main task to start the  buzzerTask
+			timeout = 0;
+			PRINTF("\n\rGiving semaphore");
+			xSemaphoreGiveFromISR(countDownReachedSemphr, &xHigherPriorityTaskWoken);
+			portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+		}
+		timeout = 0;
+	}
+}
 /// @brief PORTA IRQ handler (ACK button)
 /// @details external interrupt handler, gives semaphore to motorTask and/or
 /// buzzer task
@@ -41,7 +66,7 @@ void PORTA_IRQHandler()
 	GPIO_PortClearInterruptFlags(BOARD_ACKNOWLEDGE_GPIO, 1 << BOARD_ACKNOWLEDGE_PIN);
 
 	// temporary
-	GPIO_PortToggle(BOARD_MOTOR_GPIO, 1 << BOARD_MOTOR_PIN);
+	//GPIO_PortToggle(BOARD_MOTOR_GPIO, 1 << BOARD_MOTOR_PIN);
 
 	xHigherPriorityTaskWoken = pdFALSE;
 	xSemaphoreGiveFromISR(ackSemphr, &xHigherPriorityTaskWoken);
@@ -87,6 +112,7 @@ int main(void) {
     }
 
     ackSemphr = xSemaphoreCreateBinary();
+    countDownReachedSemphr = xSemaphoreCreateBinary();
 
     vTaskStartScheduler();
 
@@ -118,7 +144,7 @@ void dev2MainTask(void* pvParameters)
 					PRINTF("\n\rMotor Task creation failed");
 				}
 			}
-			else if(charReceived == INTENSIVE_WAKE_UP) {
+			else if((charReceived == INTENSIVE_WAKE_UP)) {
 				charReceived = 0;
 				PRINTF("\n\rBuzzer");
 				if(xTaskCreate(buzzerTask, "Buzzer task", configMINIMAL_STACK_SIZE + 100, NULL, 5, &buzzerTaskHandle) == pdFALSE)
@@ -175,20 +201,43 @@ void btStatusTask(void* pvParameters)
 /// This method will need to be adjusted to take advantage of PWM in the future
 void motorTask(void* pvParameters)
 {
+	motorTaskIsRunning = true;
 	PRINTF("\n\rMotor (scheduled wake-up) task created");
 	GPIO_PinWrite(BOARD_MOTOR_GPIO, BOARD_MOTOR_PIN, 1);
+	// start PIT to enable countdown to buzzerTask
+	PIT_StartTimer(PIT, kPIT_Chnl_0);
+
 	for(;;)
 	{
 		GPIO_PortToggle(BOARD_RED_LED_GPIO, 1 << BOARD_RED_LED_PIN);
-		vTaskDelay(pdMS_TO_TICKS(200));
+		if(xSemaphoreTake(countDownReachedSemphr, 0) == pdTRUE) {
+			// start the buzzer task
+			PRINTF("\n\rCountDown semphr received in motorTask");
+			PRINTF("\n\rBuzzer");
+			if(xTaskCreate(buzzerTask, "Buzzer task", configMINIMAL_STACK_SIZE + 100, NULL, 5, &buzzerTaskHandle) == pdFALSE)
+			{
+				PRINTF("\n\rBuzzer Task creation failed");
+			}
+			GPIO_PinWrite(BOARD_RED_LED_GPIO, BOARD_RED_LED_PIN, 1);
+			GPIO_PinWrite(BOARD_MOTOR_GPIO, BOARD_MOTOR_PIN, 0);
+			// stop countdown when acknowledged
+			PIT_StopTimer(PIT, kPIT_Chnl_0);
+			motorTaskIsRunning = false;
+			PRINTF("\n\rMotor task deleted after PIT semaphore");
+			vTaskDelete(NULL);
+		}
 
 		if(xSemaphoreTake(ackSemphr, 0) == pdTRUE)
 		{
 			GPIO_PinWrite(BOARD_RED_LED_GPIO, BOARD_RED_LED_PIN, 1);
 			GPIO_PinWrite(BOARD_MOTOR_GPIO, BOARD_MOTOR_PIN, 0);
-			PRINTF("\n\rMotor task deleted");
+			// stop countdown when acknowledged
+			PIT_StopTimer(PIT, kPIT_Chnl_0);
+			motorTaskIsRunning = false;
+			PRINTF("\n\rMotor task deleted after acknowledgement");
 			vTaskDelete(NULL);
 		}
+		vTaskDelay(pdMS_TO_TICKS(200));
 	}
 }
 
@@ -197,8 +246,11 @@ void motorTask(void* pvParameters)
 /// if an acknowledgment is received, stops the FTM (buzzer)
 void buzzerTask(void* pvParameters)
 {
+	buzzerTaskIsRunning = true;
 	PRINTF("\n\rBuzzer (intensive wake-up) task created");
 	FTM_StartTimer(BUZZER_FTM_PERIPHERAL, BUZZER_FTM_CLOCK_SOURCE);
+	// stop timer when buzzer task starts
+	PIT_StopTimer(PIT, kPIT_Chnl_0);
 
 	for(;;)
 	{
@@ -208,6 +260,7 @@ void buzzerTask(void* pvParameters)
 		{
 			FTM_StopTimer(BUZZER_FTM_PERIPHERAL);
 			PRINTF("\n\rBuzzer task deleted");
+			buzzerTaskIsRunning = false;
 			vTaskDelete(NULL);
 		}
 		vTaskDelay(pdMS_TO_TICKS(100));

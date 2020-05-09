@@ -963,6 +963,16 @@
                   <data type="Version">2.1.0</data>
                </feature>
             </dependency>
+            <dependency resourceType="SWComponent" resourceId="platform.drivers.pit" description="PIT Driver not found in the toolchain/IDE project." problem_level="2" source="Peripherals">
+               <feature name="enabled" evaluation="equal">
+                  <data type="Boolean">true</data>
+               </feature>
+            </dependency>
+            <dependency resourceType="SWComponent" resourceId="platform.drivers.pit" description="Unsupported version of the PIT Driver in the toolchain/IDE project. Required: ${required_value}, actual: ${actual_value}." problem_level="1" source="Peripherals">
+               <feature name="version" evaluation="equivalent">
+                  <data type="Version">2.0.0</data>
+               </feature>
+            </dependency>
          </dependencies>
          <generated_project_files>
             <file path="board/boards/peripherals.c" update_enabled="true"/>
@@ -999,6 +1009,11 @@
                   <dependency resourceType="PeripheralUnifiedSignal" resourceId="FTM0.tmr_ch.0" description="Signal CH0 of peripheral FTM0 is not routed" problem_level="1" source="Peripherals:BOARD_InitPeripherals">
                      <feature name="routed" evaluation="equal">
                         <data type="Boolean">true</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="ClockOutput" resourceId="Bus_clock" description="Bus clock is inactive." problem_level="1" source="Peripherals:BOARD_InitPeripherals">
+                     <feature name="frequency" evaluation="greaterThan">
+                        <data type="Frequency" unit="Hz">0</data>
                      </feature>
                   </dependency>
                </dependencies>
@@ -1093,6 +1108,30 @@
                                  <setting name="level" value="kFTM_HighTrue"/>
                                  <setting name="dutyCyclePercent" value="50"/>
                                  <setting name="enable_chan_irq" value="false"/>
+                              </struct>
+                           </struct>
+                        </array>
+                     </config_set>
+                  </instance>
+                  <instance name="PIT_1" type="pit" type_id="pit_a4782ba5223c8a2527ba91aeb2bc4159" mode="LPTMR_GENERAL" peripheral="PIT" enabled="true">
+                     <config_set name="fsl_pit">
+                        <setting name="enableRunInDebug" value="true"/>
+                        <struct name="timingConfig">
+                           <setting name="clockSource" value="BusInterfaceClock"/>
+                           <setting name="clockSourceFreq" value="GetFreq"/>
+                        </struct>
+                        <array name="channels">
+                           <struct name="0">
+                              <setting name="channelNumber" value="0"/>
+                              <setting name="enableChain" value="false"/>
+                              <setting name="timerPeriod" value="1s"/>
+                              <setting name="startTimer" value="false"/>
+                              <setting name="enableInterrupt" value="true"/>
+                              <struct name="interrupt">
+                                 <setting name="IRQn" value="PIT0_IRQn"/>
+                                 <setting name="enable_priority" value="true"/>
+                                 <setting name="priority" value="10"/>
+                                 <setting name="enable_custom_name" value="false"/>
                               </struct>
                            </struct>
                         </array>
